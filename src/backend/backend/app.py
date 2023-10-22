@@ -8,6 +8,7 @@ import oss2
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkcore.request import CommonRequest
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from .db import init_db
 from .models.task import TaskModel
@@ -31,6 +32,16 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://v2v.sota.wiki",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post("/task", response_model=TaskResponse)
