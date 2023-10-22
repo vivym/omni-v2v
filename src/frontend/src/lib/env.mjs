@@ -7,12 +7,12 @@ export const env = createEnv({
     NEXT_PUBLIC_BASE_URL: z
       .string()
       .url()
-      .default('http://localhost:3000'),
+      .default('https://v2v.sota.wiki'),
 
     NEXT_PUBLIC_API_BASE_URL: z
       .string()
       .url()
-      .default('http://localhost:3000/api'),
+      .default('http://api.v2v.sota.wiki'),
   },
   runtimeEnv: {
     NEXT_PUBLIC_BASE_URL: process.env.BASE_URL,
