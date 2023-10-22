@@ -2,15 +2,6 @@ import { StateCreator } from 'zustand'
 import { kPredefinedPrompts } from '@/lib/consts'
 
 export interface V2VInputSlice {
-  videoUploaded: boolean
-  setVideoUploaded: (videoUploaded: boolean) => void
-
-  videoUploading: boolean
-  setVideoUploading: (uploading: boolean) => void
-
-  videoUrl: string
-  setVideoUrl: (videoUrl: string) => void
-
   srcVideoFile: File | null
   setSrcVideoFile: (srcVideoFile: File) => void
 
@@ -36,15 +27,6 @@ export const createV2VInputSlice: StateCreator<
   [],
   V2VInputSlice
 > = (set) => ({
-  videoUploaded: false,
-  setVideoUploaded: (videoUploaded) => set({ videoUploaded }),
-
-  videoUploading: false,
-  setVideoUploading: (videoUploading) => set({ videoUploading }),
-
-  videoUrl: '',
-  setVideoUrl: (videoUrl) => set({ videoUrl }),
-
   srcVideoFile: null,
   setSrcVideoFile: (srcVideoFile) => set({ srcVideoFile }),
 

@@ -1,6 +1,6 @@
-import { MainLayout } from '@/components/MainLayout'
-import { VideoUploader } from '@/components/HomePage/VideoUploader'
 import { PromptInput } from '@/components/HomePage/PromptInput'
+import { VideoUploader } from '@/components/HomePage/VideoUploader'
+import { MainLayout } from '@/components/MainLayout'
 
 export default function HomePage() {
   return (

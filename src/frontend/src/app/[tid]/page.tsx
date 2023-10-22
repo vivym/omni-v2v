@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'next/navigation'
-import { Button, Spinner } from 'flowbite-react'
 import { Player, Ui, Video } from '@vime/react'
+import { Button, Spinner } from 'flowbite-react'
+import { useParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
 import { http } from '@/lib/http'
 import { getOSSClient } from '@/lib/oss'
 
@@ -58,7 +58,7 @@ export default function ViewPage() {
     }
 
     fetchTask().catch(console.error)
-  }, [setTask, setSrcVideoUrl, setTgtVideoUrl])
+  }, [tid, setTask, setSrcVideoUrl, setTgtVideoUrl])
 
   const status = useMemo(() => {
     if (!task) {

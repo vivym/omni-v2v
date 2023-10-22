@@ -1,11 +1,10 @@
 'use client'
 
-import clsx from 'clsx'
-import { useCallback, useState } from 'react'
-import { useDropzone } from 'react-dropzone'
-import { Button, TextInput } from 'flowbite-react'
 import { CloudArrowUpIcon, XMarkIcon } from '@heroicons/react/24/solid'
 import { Player, Ui, Video } from '@vime/react'
+import clsx from 'clsx'
+import { Button, TextInput } from 'flowbite-react'
+import React, { useCallback, useRef, useState } from 'react'
 import { useBoundStore } from '@/lib/store'
 
 function DouyinIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
@@ -35,17 +34,12 @@ function BilibiliIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
 }
 
 function UploadZone() {
+  const [dragActive, setDragActive] = useState<boolean>(false)
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [videoSrcUrl, setVideoSrcUrl] = useState<string>('')
-  const [parsingVideoSrcUrl, setParsingVideoSrcUrl] = useState<boolean>(false)
   const [readingClipboard, setReadingClipboard] = useState<boolean>(false)
   const setSrcVideoFile = useBoundStore((state) => state.setSrcVideoFile)
   const setSrcVideoPreviewUrl = useBoundStore((state) => state.setSrcVideoPreviewUrl)
-
-  const parseVideoSrcUrl = async (url: string) => {
-    setParsingVideoSrcUrl(true)
-
-    setParsingVideoSrcUrl(false)
-  }
 
   const onGetVideoUrlFromClipboard = async () => {
     setReadingClipboard(true)
@@ -56,44 +50,102 @@ function UploadZone() {
     if (url) {
       setVideoSrcUrl(url)
 
-      await parseVideoSrcUrl(url)
+      // await parseVideoSrcUrl(url)
     } else {
       // TODO: show error
     }
   }
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 0) {
+  const onDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(true)
+  }, [setDragActive])
+
+  const onDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+  }, [setDragActive])
+
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(true)
+  }, [setDragActive])
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+
+    const files = e.dataTransfer.files
+    if (files.length === 0 || files.length > 1) {
+      // TODO: show error
       return
     }
 
-    setSrcVideoFile(acceptedFiles[0])
-    setSrcVideoPreviewUrl(URL.createObjectURL(acceptedFiles[0]))
-  }, [setSrcVideoFile, setSrcVideoPreviewUrl])
+    const file = files[0]
+    if (file.size > 128 * 1024 * 1024 || file.type !== 'video/mp4') {
+      // TODO: show error
+      return
+    }
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: {
-      'video/*': ['.mp4'],
-    },
-    maxSize: 128 * 1024 * 1024, // 128MB
-    maxFiles: 1,
-    onDrop,
-  })
+    setSrcVideoFile(file)
+    setSrcVideoPreviewUrl(URL.createObjectURL(file))
+  }, [setDragActive, setSrcVideoFile, setSrcVideoPreviewUrl])
+
+  const openFileInput = useCallback(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+      fileInputRef.current.click()
+    }
+  }, [fileInputRef])
+
+  const onFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+
+    const files = e.target.files
+    if (!files || files.length === 0 || files.length > 1) {
+      // TODO: show error
+      return
+    }
+
+    const file = files[0]
+    if (file.size > 128 * 1024 * 1024 || file.type !== 'video/mp4') {
+      // TODO: show error
+      return
+    }
+
+    setSrcVideoFile(file)
+    setSrcVideoPreviewUrl(URL.createObjectURL(file))
+  }, [setSrcVideoFile, setSrcVideoPreviewUrl])
 
   return (
     <>
       <div
         className={clsx(
           'flex flex-1 justify-center items-center py-10 hover:bg-gray-50',
-          !isDragActive && 'hover:cursor-pointer',
-          isDragActive && 'bg-gray-50',
+          !dragActive && 'hover:cursor-pointer',
+          dragActive && 'bg-gray-50',
         )}
-        {...getRootProps()}
-      >
-        <input {...getInputProps()} />
+        onDragEnter={onDragEnter}
+        onDrop={onDrop}
+        onDragLeave={onDragLeave}
+        onDragOver={onDragOver}
+        onClick={openFileInput}
+       >
+        <input
+          className="hidden"
+          ref={fileInputRef}
+          type="file"
+          multiple={false}
+          accept="video/mp4"
+          onChange={onFileInputChange}
+        />
         <div className="flex flex-col items-center">
           <CloudArrowUpIcon className="h-12 w-12 text-gray-500 drak:text-gray-400" />
-          {isDragActive ? (
+          {dragActive ? (
             <p className="mt-6">请在此区域<span className="font-semibold">释放</span>文件</p>
           ): (
             <p className="mt-6">
@@ -118,7 +170,7 @@ function UploadZone() {
               value={videoSrcUrl}
               onChange={(e) => setVideoSrcUrl(e.target.value)}
             />
-            <Button color="blue" size="sm" onClick={() => parseVideoSrcUrl(videoSrcUrl)}>获取视频</Button>
+            <Button color="blue" size="sm" onClick={() => {}}>获取视频</Button>
           </div>
           <Button
             color="blue"

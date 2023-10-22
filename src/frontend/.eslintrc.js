@@ -2,10 +2,11 @@
 const fs = require('fs')
 
 module.exports = {
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint'],
   extends: [
     'next',
     'prettier',
-    'react-app',
     'plugin:tailwindcss/recommended',
   ],
   parserOptions: {

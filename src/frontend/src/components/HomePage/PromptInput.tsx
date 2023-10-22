@@ -1,16 +1,16 @@
 'use client'
 
+import { Button, Label, Modal, Progress, Select, Spinner, TextInput } from 'flowbite-react'
+import { sha256 } from 'js-sha256'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { sha256 } from 'js-sha256'
-import { useCallback, useMemo, useState } from 'react'
-import { Button, Label, TextInput, Select, Spinner, Progress, Modal } from 'flowbite-react'
 import { QRCodeCanvas } from 'qrcode.react'
-import { useBoundStore } from '@/lib/store'
-import { getOSSClient } from '@/lib/oss'
-import { http } from '@/lib/http'
-import { env } from '@/lib/env.mjs'
+import { useCallback, useMemo, useState } from 'react'
 import { kPredefinedPrompts } from '@/lib/consts'
+import { env } from '@/lib/env.mjs'
+import { http } from '@/lib/http'
+import { getOSSClient } from '@/lib/oss'
+import { useBoundStore } from '@/lib/store'
 
 interface Task {
   id: string
@@ -72,7 +72,7 @@ export function PromptInput() {
     // #2. upload video to oss
     const oss = await getOSSClient()
     const res = await oss.multipartUpload(`upload_videos/${videoSha256}.mp4`, srcVideoFile, {
-      progress(p, cpt, res) {
+      progress(p) {
         setUploadProgress(Math.min(Math.round(p * 100), 100))
       },
       parallel: 4,
@@ -98,7 +98,7 @@ export function PromptInput() {
 
     // #4. show result
     setModalOpen(true)
-  }, [srcVideoPreviewUrl, srcVideoFile, seed, setUploadProgress, setTaskId, setModalOpen])
+  }, [positivePrompt, negativePrompt, srcVideoPreviewUrl, srcVideoFile, seed, setUploadProgress, setTaskId, setModalOpen])
 
   return (
     <form className="flex flex-col mt-6 py-6 border-t">

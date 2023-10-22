@@ -27,7 +27,6 @@
     "qrcode.react": "^3.1.0",
     "react": "^18",
     "react-dom": "^18",
-    "react-dropzone": "^14.2.3",
     "zod": "^3.22.4",
     "zustand": "^4.4.3"
   },
