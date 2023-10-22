@@ -13,6 +13,7 @@ services:
       - ./.env:/app/.env
     ports:
       - "12580:80"
+    restart: unless-stopped
 
   mongo:
     image: mongo:6-jammy
