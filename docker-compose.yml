@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  api:
+    image: omni-v2v-api:latest
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+      target: api
+    depends_on:
+      - mongo
+    volumes:
+      - ./.env:/app/.env
+    ports:
+      - "12580:80"
+
+  mongo:
+    image: mongo:6-jammy
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

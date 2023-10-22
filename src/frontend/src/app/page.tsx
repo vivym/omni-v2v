@@ -1,9 +1,14 @@
-import Image from 'next/image'
+import { MainLayout } from '@/components/MainLayout'
+import { VideoUploader } from '@/components/HomePage/VideoUploader'
+import { PromptInput } from '@/components/HomePage/PromptInput'
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <main>
-      233
-    </main>
+    <MainLayout>
+      <div className="flex flex-col">
+        <VideoUploader />
+        <PromptInput />
+      </div>
+    </MainLayout>
   )
 }
