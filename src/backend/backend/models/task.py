@@ -72,19 +72,21 @@ class TaskModel(Document):
     async def get_pending_task(cls) -> Optional["TaskModel"]:
         tasks = (
             await cls.find(cls.status == "pending")
-                .sort(cls.to_process_after)
+                .sort(+cls.to_process_after)
                 .limit(1)
-                .set({
-                    cls.status: "processing",
-                    cls.processing_at: datetime.utcnow(),
-                })
                 .to_list()
         )
 
         if len(tasks) == 0:
             return None
         else:
-            return tasks[0]
+            task = tasks[0]
+
+            task.status = "processing"
+            task.processing_at = datetime.utcnow()
+            await task.save_changes()
+
+            return task
 
     @classmethod
     async def requeue(cls, task_id: str | PydanticObjectId) -> None:
@@ -100,7 +102,7 @@ class TaskModel(Document):
     @classmethod
     async def clear_expired_tasks(cls) -> None:
         (
-            await cls.find_many(cls.status == "processing", cls.processing_at < datetime.utcnow() - timedelta(minutes=30))
+            await cls.find(cls.status == "processing", cls.processing_at < datetime.utcnow() - timedelta(minutes=30))
                 .set({cls.status: "pending"})
                 .set({cls.to_process_after: datetime.utcnow() + timedelta(minutes=5)})
         )
