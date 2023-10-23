@@ -97,16 +97,20 @@ class TaskModel(Document):
 
         {
             await cls.find_one(cls.id == task_id, cls.status == "processing")
-                .set({cls.status: "pending"})
-                .set({cls.to_process_after: datetime.utcnow() + timedelta(minutes=5)})
+                .set({
+                    cls.status: "pending",
+                    cls.to_process_after: datetime.utcnow() + timedelta(minutes=5),
+                })
         }
 
     @classmethod
     async def clear_expired_tasks(cls) -> None:
         (
             await cls.find(cls.status == "processing", cls.processing_at < datetime.utcnow() - timedelta(minutes=30))
-                .set({cls.status: "pending"})
-                .set({cls.to_process_after: datetime.utcnow() + timedelta(minutes=5)})
+                .set({
+                    cls.status: "pending",
+                    cls.to_process_after: datetime.utcnow() + timedelta(minutes=5),
+                })
         )
 
     @classmethod
@@ -118,15 +122,18 @@ class TaskModel(Document):
         if isinstance(task_id, str):
             task_id = PydanticObjectId(task_id)
 
-        (
+        res = (
             await cls.find_one(cls.id == task_id, cls.status == "processing")
-                .set({cls.status: "completed"})
-                .set({cls.src_video_oss_bucket: task.src_video_oss_bucket})
-                .set({cls.src_video_oss_key: task.src_video_oss_key})
-                .set({cls.tgt_video_oss_bucket: task.tgt_video_oss_bucket})
-                .set({cls.tgt_video_oss_key: task.tgt_video_oss_key})
-                .set({cls.completed_at: datetime.utcnow()})
+                .set({
+                    cls.status: "completed",
+                    cls.src_video_oss_bucket: task.src_video_oss_bucket,
+                    cls.src_video_oss_key: task.src_video_oss_key,
+                    cls.tgt_video_oss_bucket: task.tgt_video_oss_bucket,
+                    cls.tgt_video_oss_key: task.tgt_video_oss_key,
+                    cls.completed_at: datetime.utcnow(),
+                })
         )
+        print("res", res)
 
     @classmethod
     async def fail(cls, task_id: str | PydanticObjectId, message: str) -> None:
@@ -135,9 +142,11 @@ class TaskModel(Document):
 
         (
             await cls.find_one(cls.id == task_id, cls.status == "processing")
-                .set({cls.status: "failed"})
-                .set({cls.message: message})
-                .set({cls.completed_at: datetime.utcnow()})
+                .set({
+                    cls.status: "failed",
+                    cls.message: message,
+                    cls.completed_at: datetime.utcnow(),
+                })
         )
 
     @classmethod
