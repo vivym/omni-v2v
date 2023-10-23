@@ -77,6 +77,8 @@ class TaskModel(Document):
                 .to_list()
         )
 
+        # TODO: use findAndModify
+
         if len(tasks) == 0:
             return None
         else:
@@ -84,7 +86,7 @@ class TaskModel(Document):
 
             task.status = "processing"
             task.processing_at = datetime.utcnow()
-            await task.save_changes()
+            await task.save()
 
             return task
 
