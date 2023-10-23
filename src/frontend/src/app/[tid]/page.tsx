@@ -42,8 +42,8 @@ export default function ViewPage() {
       setTask(data.task)
 
       if (data.task) {
-        const srcVideoOssKey = data.task.status === 'success' ? data.task.src_video_oss_key : data.task.video_oss_key
-        const tgtVideoOssKey = data.task.status === 'success' ? data.task.tgt_video_oss_key : null
+        const srcVideoOssKey = data.task.status === 'completed' ? data.task.src_video_oss_key : data.task.video_oss_key
+        const tgtVideoOssKey = data.task.status === 'completed' ? data.task.tgt_video_oss_key : null
 
         const oss = await getOSSClient()
 
@@ -71,7 +71,7 @@ export default function ViewPage() {
       return '正在排队...'
     } else if (task.status === 'processing') {
       return '正在处理...'
-    } else if (task.status === 'success') {
+    } else if (task.status === 'completed') {
       return '处理完成.'
     } else if (task.status === 'failed') {
       return '处理失败.'
