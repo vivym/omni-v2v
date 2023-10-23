@@ -22,6 +22,8 @@ class Task(BaseSchema):
     status: str = "pending"
     message: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    to_process_after: datetime = Field(default_factory=datetime.utcnow)
+    processing_at: datetime | None = None
     completed_at: datetime | None = None
     views: int = 0
     private: bool = False

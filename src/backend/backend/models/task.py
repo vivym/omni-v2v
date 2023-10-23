@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from beanie import Document, Indexed, UpdateResponse, PydanticObjectId
@@ -23,6 +23,8 @@ class TaskModel(Document):
     status: Indexed(str) = "pending"
     message: str | None = None
     created_at: Indexed(datetime) = Field(default_factory=datetime.utcnow)
+    to_process_after: Indexed(datetime) = Field(default_factory=datetime.utcnow)
+    processing_at: Indexed(datetime | None) = None
     completed_at: datetime | None = None
     views: int = 0
     private: bool = False
@@ -52,6 +54,8 @@ class TaskModel(Document):
             status=self.status,
             message=self.message,
             created_at=self.created_at,
+            to_process_after=self.to_process_after,
+            processing_at=self.processing_at,
             completed_at=self.completed_at,
             views=self.views,
             private=self.private,
@@ -68,9 +72,34 @@ class TaskModel(Document):
     async def get_pending_task(cls) -> Optional["TaskModel"]:
         return (
             await cls.find(cls.status == "pending")
-                .sort(cls.created_at)
+                .sort(cls.to_process_after)
                 .limit(1)
-                .set({cls.status: "processing"}, response_type=UpdateResponse.NEW_DOCUMENT)
+                .set(
+                    {
+                        cls.status: "processing",
+                        cls.processing_at: datetime.utcnow(),
+                    },
+                    response_type=UpdateResponse.NEW_DOCUMENT,
+                )
+        )
+
+    @classmethod
+    async def requeue(cls, task_id: str | PydanticObjectId) -> None:
+        if isinstance(task_id, str):
+            task_id = PydanticObjectId(task_id)
+
+        {
+            await cls.find_one(cls.id == task_id, cls.status == "processing")
+                .set({cls.status: "pending"})
+                .set({cls.to_process_after: datetime.utcnow() + timedelta(minutes=5)})
+        }
+
+    @classmethod
+    async def clear_expired_tasks(cls) -> None:
+        (
+            await cls.find_many(cls.status == "processing", cls.processing_at < datetime.utcnow() - timedelta(minutes=30))
+                .set({cls.status: "pending"})
+                .set({cls.to_process_after: datetime.utcnow() + timedelta(minutes=5)})
         )
 
     @classmethod

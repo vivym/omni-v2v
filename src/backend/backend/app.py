@@ -58,21 +58,39 @@ async def get_pending_task(token: str):
 
     task = await TaskModel.get_pending_task()
 
+    await TaskModel.clear_expired_tasks()
+
     if task:
         return {"task": task.to_task_schema()}
     else:
         return {"task": None}
 
 
+@app.get("/tasks/{task_id}/requeue", response_model=TaskResponse)
+async def requeue_task(task_id: str, token: str):
+    if token != settings.worker_token:
+        return {"task": None}
+
+    await TaskModel.requeue(task_id)
+
+    return {"task": None}
+
+
 @app.post("/tasks/{task_id}", response_model=TaskResponse)
-async def complete_task(task_id: str, task: TaskCompletion):
+async def complete_task(task_id: str, token: str, task: TaskCompletion):
+    if token != settings.worker_token:
+        return {"task": None}
+
     await TaskModel.complete(task_id, task)
 
     return {"task": None}
 
 
 @app.post("/tasks/{task_id}/fail", response_model=TaskResponse)
-async def fail_task(task_id: str, message: str):
+async def fail_task(task_id: str, token: str, message: str):
+    if token != settings.worker_token:
+        return {"task": None}
+
     await TaskModel.fail(task_id, message)
 
     return {"task": None}
