@@ -24,7 +24,7 @@ class TaskModel(Document):
     message: str | None = None
     created_at: Indexed(datetime) = Field(default_factory=datetime.utcnow)
     to_process_after: Indexed(datetime) = Field(default_factory=datetime.utcnow)
-    processing_at: Indexed(datetime | None) = None
+    processing_at: Indexed(datetime) | None = None
     completed_at: datetime | None = None
     views: int = 0
     private: bool = False
@@ -70,18 +70,21 @@ class TaskModel(Document):
 
     @classmethod
     async def get_pending_task(cls) -> Optional["TaskModel"]:
-        return (
+        tasks = (
             await cls.find(cls.status == "pending")
                 .sort(cls.to_process_after)
                 .limit(1)
-                .set(
-                    {
-                        cls.status: "processing",
-                        cls.processing_at: datetime.utcnow(),
-                    },
-                    response_type=UpdateResponse.NEW_DOCUMENT,
-                )
+                .set({
+                    cls.status: "processing",
+                    cls.processing_at: datetime.utcnow(),
+                })
+                .to_list()
         )
+
+        if len(tasks) == 0:
+            return None
+        else:
+            return tasks[0]
 
     @classmethod
     async def requeue(cls, task_id: str | PydanticObjectId) -> None:
