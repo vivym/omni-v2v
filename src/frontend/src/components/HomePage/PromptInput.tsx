@@ -141,7 +141,7 @@ export function PromptInput() {
             disabled={!isManuelPrompt}
             type="text"
             value={negativePrompt}
-            onChange={(e) => setPositivePrompt(e.target.value)}
+            onChange={(e) => setNegativePrompt(e.target.value)}
           />
         </div>
 

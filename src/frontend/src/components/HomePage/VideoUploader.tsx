@@ -146,9 +146,9 @@ function UploadZone() {
         <div className="flex flex-col items-center">
           <CloudArrowUpIcon className="h-12 w-12 text-gray-500 drak:text-gray-400" />
           {dragActive ? (
-            <p className="mt-6">请在此区域<span className="font-semibold">释放</span>文件</p>
+            <p className="mt-6 text-center">请在此区域<span className="font-semibold">释放</span>文件</p>
           ): (
-            <p className="mt-6">
+            <p className="mt-6 text-center">
               将视频<span className="font-semibold">拖拽</span>至此区域
               或<span className="font-semibold">点击</span>此区域上传视频
             </p>
@@ -164,7 +164,7 @@ function UploadZone() {
           </div>
           <div className="flex flex-row gap-x-2">
             <TextInput
-              className="lg:w-64"
+              className="w-32 md:w-40 lg:w-64"
               type="text"
               placeholder="请输入视频链接"
               value={videoSrcUrl}
